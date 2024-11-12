@@ -1,0 +1,81 @@
+trigger: none
+
+pool:
+  name: "windowspool"
+  demands:
+    - Agent.Name -equals windowsagent
+
+variables:
+  - group: 'Terraform-Details'
+  # ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
+  # ARM_TENANT_ID: $(ARM_TENANT_ID)
+  # ARM_CLIENT_ID: $(ARM_CLIENT_ID)
+  # ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
+
+
+stages:
+
+# Stage 1: Get Terraform Code
+- stage: GetTerraformCode
+  displayName: "Get Terraform Code"
+  jobs:
+    - job: GetTerraformCode
+      displayName: "Get Terraform Code"
+      steps:
+        # Checkout the Terraform code from repository
+        - checkout: self
+
+        - task: CopyFiles@2
+          inputs:
+            SourceFolder: 'C:\vsts-agent-win-x64-3.246.0\_work\1\s'
+            Contents: '**/*'  # Copy all files in the directory
+            TargetFolder: 'C:\terraform-code'
+
+
+# Stage 2: Run Terraform Init
+- stage: RunTerraformCommands
+  displayName: "Run Terraform Commands"
+  jobs:
+    - job: InstallTerrform
+      displayName: "Install Terraform"
+      steps:
+        - task: TerraformInstaller@1
+          inputs:
+            terraformVersion: 'latest'
+
+        - task: TerraformTaskV4@4
+          displayName: "terraform init"
+          inputs:
+            provider: 'azurerm'
+            command: 'init'
+            workingDirectory: 'C:\terraform-code\environment\dev'
+            backendServiceArm: 'devops-azure-connection'
+            backendAzureRmResourceGroupName: 'rg-terraform'
+            backendAzureRmStorageAccountName: 'strgtfbkndtfstate'
+            backendAzureRmContainerName: 'terraform-tfstate-container'
+            backendAzureRmKey: 'dev.terraform.tfstate'
+
+        - task: TerraformTaskV4@4
+          displayName: "terraform validate"
+          inputs:
+            provider: 'azurerm'
+            command: 'validate'
+            workingDirectory: 'C:\terraform-code\environment\dev'
+
+        - task: TerraformTaskV4@4
+          displayName: "terraform plan"
+          inputs:
+            provider: 'azurerm'
+            command: 'plan'
+            workingDirectory: 'C:\terraform-code\environment\dev'
+            environmentServiceNameAzureRM: 'devops-azure-connection'
+
+        - task: TerraformTaskV4@4
+          displayName: "terraform apply"
+          inputs:
+            provider: 'azurerm'
+            command: 'apply'
+            commandOptions: '--auto-approve --var-file dev.tfvars'
+            workingDirectory: 'C:\terraform-code\environment\dev'
+            environmentServiceNameAzureRM: 'devops-azure-connection'
+
