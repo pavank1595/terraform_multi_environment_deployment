@@ -53,13 +53,10 @@ stages:
             # Unzip the downloaded file
             Expand-Archive -Path $downloadPath -DestinationPath $extractPath
 
-          displayName: "Download and Install Terraform"
-
-        - powershell: |
             # Add Terraform to PATH
             [System.Environment]::SetEnvironmentVariable("PATH", $env:PATH + ";C:\terraform-software", [System.EnvironmentVariableTarget]::Machine)
 
-          displayName: "Add Terraform to PATH"
+          displayName: "Download and Install Terraform"
 
 
         - task: TerraformTaskV4@4
