@@ -39,7 +39,7 @@ stages:
     - job: RunTerraformCommands
       displayName: "Run Terraform Commands"
       steps:
-      - powershell: |
+        - powershell: |
             # Define the download URL for the latest version of Terraform
             $url = "https://releases.hashicorp.com/terraform/1.9.8/terraform_1.9.8_windows_amd64.zip"
 
