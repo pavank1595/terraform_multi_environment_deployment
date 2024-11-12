@@ -41,10 +41,6 @@ stages:
 
           displayName: "Download and Install Terraform"
 
-        - powershell: |
-            # Verify the installation
-            terraform --version
-
 
 # Stage 2: Get Terraform Code
 - stage: GetTerraformCode
