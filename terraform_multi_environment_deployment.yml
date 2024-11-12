@@ -39,9 +39,11 @@ stages:
             # Add Terraform to PATH
             [System.Environment]::SetEnvironmentVariable("PATH", $env:PATH + ";C:\terraform-software", [System.EnvironmentVariableTarget]::Machine)
 
+          displayName: "Download and Install Terraform"
+
+        - powershell: |
             # Verify the installation
             terraform --version
-          displayName: "Download and Install Terraform"
 
 
 # Stage 2: Get Terraform Code
