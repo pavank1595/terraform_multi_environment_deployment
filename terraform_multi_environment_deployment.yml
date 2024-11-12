@@ -39,6 +39,7 @@ stages:
     - job: RunTerraformCommands
       displayName: "Run Terraform Commands for Multiple Environments"
       strategy:
+        maxParallel: 3
         matrix:
           dev:
             environment: 'dev'
