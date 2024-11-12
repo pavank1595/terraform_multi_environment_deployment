@@ -34,49 +34,60 @@ stages:
 
 # Stage 2: Run Terraform Init
 - stage: RunTerraformCommands
-  displayName: "Run Terraform Commands"
+  displayName: "Run Terraform Commands for Multiple Environments"
   jobs:
     - job: RunTerraformCommands
-      displayName: "Run Terraform Commands"
+      displayName: "Run Terraform Commands for Multiple Environments"
+      strategy:
+        matrix:
+          dev:
+            environment: 'dev'
+            tfvars: 'dev.tfvars'
+          test:
+            environment: 'test'
+            tfvars: 'test.tfvars'
+          uat:
+            environment: 'uat'
+            tfvars: 'uat.tfvars'
+
       steps:
         - task: TerraformInstaller@1
           inputs:
             terraformVersion: 'latest'
 
         - task: TerraformTaskV4@4
-          displayName: "terraform init"
+          displayName: "terraform init - $(environment)"
           inputs:
             provider: 'azurerm'
             command: 'init'
-            workingDirectory: 'C:\terraform-code\environment\dev'
+            workingDirectory: 'C:\terraform-code\environment\$(environment)'
             backendServiceArm: 'devops-azure-connection'
             backendAzureRmResourceGroupName: 'rg-terraform'
             backendAzureRmStorageAccountName: 'strgtfbkndtfstate'
             backendAzureRmContainerName: 'terraform-tfstate-container'
-            backendAzureRmKey: 'dev.terraform.tfstate'
+            backendAzureRmKey: '$(environment).terraform.tfstate'
 
         - task: TerraformTaskV4@4
-          displayName: "terraform validate"
+          displayName: "terraform validate - $(environment)"
           inputs:
             provider: 'azurerm'
             command: 'validate'
-            workingDirectory: 'C:\terraform-code\environment\dev'
+            workingDirectory: 'C:\terraform-code\environment\$(environment)'
 
         - task: TerraformTaskV4@4
-          displayName: "terraform plan"
+          displayName: "terraform plan - $(environment)"
           inputs:
             provider: 'azurerm'
             command: 'plan'
-            commandOptions: '--var-file dev.tfvars'
-            workingDirectory: 'C:\terraform-code\environment\dev'
+            commandOptions: '--var-file $(tfvars)'
+            workingDirectory: 'C:\terraform-code\environment\$(environment)'
             environmentServiceNameAzureRM: 'devops-azure-connection'
 
         - task: TerraformTaskV4@4
-          displayName: "terraform apply"
+          displayName: "terraform apply - $(environment)"
           inputs:
             provider: 'azurerm'
             command: 'apply'
-            commandOptions: '--auto-approve --var-file dev.tfvars'
-            workingDirectory: 'C:\terraform-code\environment\dev'
+            commandOptions: '--auto-approve --var-file $(tfvars)'
+            workingDirectory: 'C:\terraform-code\environment\$(environment)'
             environmentServiceNameAzureRM: 'devops-azure-connection'
-
