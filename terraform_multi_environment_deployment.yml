@@ -15,7 +15,7 @@ variables:
 
 stages:
 
-# Stage 2: Get Terraform Code
+# Stage 1: Get Terraform Code
 - stage: GetTerraformCode
   displayName: "Get Terraform Code"
   jobs:
@@ -32,32 +32,16 @@ stages:
             TargetFolder: 'C:\terraform-code'
 
 
-# Stage 3: Run Terraform Init
+# Stage 2: Run Terraform Init
 - stage: RunTerraformCommands
   displayName: "Run Terraform Commands"
   jobs:
     - job: RunTerraformCommands
       displayName: "Run Terraform Commands"
       steps:
-        - powershell: |
-            # Define the download URL for the latest version of Terraform
-            $url = "https://releases.hashicorp.com/terraform/1.9.8/terraform_1.9.8_windows_amd64.zip"
-
-            # Define the download location and unzip directory
-            $downloadPath = "C:\terraform.zip"
-            $extractPath = "C:\terraform-software"
-
-            # Download the Terraform ZIP file
-            Invoke-WebRequest -Uri $url -OutFile $downloadPath
-
-            # Unzip the downloaded file
-            Expand-Archive -Path $downloadPath -DestinationPath $extractPath
-
-            # Add Terraform to PATH
-            [System.Environment]::SetEnvironmentVariable("PATH", $env:PATH + ";C:\terraform-software", [System.EnvironmentVariableTarget]::Machine)
-
-          displayName: "Download and Install Terraform"
-
+        - task: TerraformInstaller@1
+          inputs:
+            terraformVersion: 'latest'
 
         - task: TerraformTaskV4@4
           displayName: "terraform init"
