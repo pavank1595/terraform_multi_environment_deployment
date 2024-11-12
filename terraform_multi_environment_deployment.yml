@@ -37,7 +37,7 @@ stages:
             Expand-Archive -Path $downloadPath -DestinationPath $extractPath
 
             # Add Terraform to PATH
-            $env:Path += ";C:\terraform-software"
+            [System.Environment]::SetEnvironmentVariable("PATH", $env:PATH + ";C:\terraform-software", [System.EnvironmentVariableTarget]::Machine)
 
             # Verify the installation
             terraform --version
@@ -68,7 +68,7 @@ stages:
     - job: RunTerraformCommands
       displayName: "Run Terraform Commands"
       steps:
-      
+
         - task: TerraformTaskV4@4
           displayName: "terraform init"
           inputs:
