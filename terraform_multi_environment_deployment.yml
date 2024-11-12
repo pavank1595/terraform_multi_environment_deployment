@@ -36,8 +36,8 @@ stages:
             # Unzip the downloaded file
             Expand-Archive -Path $downloadPath -DestinationPath $extractPath
 
-            # Add Terraform to PATH
-            $env:Path += ";C:\terraform-software"
+            # Add Terraform to the user PATH permanently
+            [System.Environment]::SetEnvironmentVariable("PATH", $env:PATH + ";C:\terraform", [System.EnvironmentVariableTarget]::User)
 
             # Verify the installation
             terraform --version
