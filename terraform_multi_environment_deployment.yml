@@ -67,6 +67,7 @@ stages:
           inputs:
             provider: 'azurerm'
             command: 'plan'
+            commandOptions: '--var-file dev.tfvars'
             workingDirectory: 'C:\terraform-code\environment\dev'
             environmentServiceNameAzureRM: 'devops-azure-connection'
 
